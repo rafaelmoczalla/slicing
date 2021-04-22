@@ -1,0 +1,13 @@
+plugins {
+    id "cpp-application"
+}
+
+application {
+    baseName = "app"
+
+    dependencies {
+        implementation project(':slicing')
+    }
+
+    source.from file("src")
+}

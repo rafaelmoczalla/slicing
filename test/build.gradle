@@ -1,0 +1,13 @@
+plugins {
+    id "cpp-unit-test"
+}
+
+unitTest {
+    baseName = "test" 
+
+    dependencies {
+        implementation project(':slicing')
+    }
+
+    source.from file("src")
+}

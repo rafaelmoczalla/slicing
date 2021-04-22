@@ -1,0 +1,3 @@
+rootProject.name = 'Slicing For Punctuation Windows'
+
+include 'app', 'slicing', 'test'
