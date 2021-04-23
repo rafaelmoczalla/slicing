@@ -8,7 +8,7 @@ unitTest {
     dependencies {
         implementation project(':framework')
         implementation project(':baseline')
-        implementation project(':slicing')
+        implementation project(':prototype')
     }
 
     source.from file("src")

@@ -6,7 +6,7 @@ application {
     baseName = "experiments"
 
     dependencies {
-        implementation project(':slicing')
+        implementation project(':prototype')
         implementation project(':baseline')
     }
 
