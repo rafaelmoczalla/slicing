@@ -67,3 +67,5 @@ flink/
 ### visual studio code
 .vscode/
 *.code-workspace
+.project
+.settings/

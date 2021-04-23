@@ -6,6 +6,8 @@ unitTest {
     baseName = "test" 
 
     dependencies {
+        implementation project(':framework')
+        implementation project(':baseline')
         implementation project(':slicing')
     }
 

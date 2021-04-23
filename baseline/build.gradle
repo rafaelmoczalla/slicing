@@ -3,7 +3,7 @@ plugins {
 }
 
 library {
-    baseName = "slicing"
+    baseName = "baseline"
 
     dependencies {
         api project(':framework')
