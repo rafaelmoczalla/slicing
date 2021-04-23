@@ -1,7 +1,7 @@
 #include <watermark.hpp>
 
 
-Watermark::Watermark(long ts) : Watermark::Element(ts, 0) {
+Watermark::Watermark(long ts) : Element(ts, 0) {
     this->ts = ts;
 }
 

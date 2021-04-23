@@ -23,13 +23,6 @@ class Bucket {
     Bucket(std::string key);
 
     /**
-     * Getter function of events in a bucket instance.
-     *
-     * @return Events in a bucket instance.
-     */
-    std::vector<Event *> getEvents();
-
-    /**
      * Getter function for checkpoint of bucket instance.
      * 
      * @return Checkpoint of bucket instance.
@@ -91,7 +84,7 @@ class Bucket {
     /**
      * Clears data in instance.
      */
-    void clear();
+    ~Bucket();
 
     /**
      * Debug function to get a string representation of an instance.

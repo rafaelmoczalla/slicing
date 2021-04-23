@@ -139,7 +139,7 @@ class State {
     /**
      * Clears data in instance.
      */
-    void clear();
+    ~State();
 
     /**
      * Debug function to get a string representation of an instance.

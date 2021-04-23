@@ -40,7 +40,7 @@ class SliceOperator {
      * 
      * @param watermark Watermark to process next.
      */
-    void processWatermark(Watermark *watermark);
+    std::vector<Element *> processWatermark(Watermark *watermark);
 
     /**
      * Processes an event instance from input pipelines.
@@ -48,6 +48,11 @@ class SliceOperator {
      * @param event Event to process next.
      */
     void processElement(Event *event);
+
+    /**
+     * Clears data in instance.
+     */
+    ~SliceOperator();
 
     /**
      * Debug function to get a string representation of an instance.

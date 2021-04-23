@@ -7,10 +7,6 @@ Bucket::Bucket(std::string key) : events() {
     this->key = key;
 }
 
-std::vector<Event *> Bucket::getEvents() {
-    return events;
-}
-
 int Bucket::getCheckpoint() {
     return checkpoint;
 }
@@ -41,15 +37,19 @@ void Bucket::addValue(double value, long ts) {
 
 void Bucket::removeEvent(int index) {
     if (!events.empty() && index < events.size()) {
-        events.erase(events.begin());
+        delete events[index];
+        events.erase(events.begin() + index);
 
         --checkpoint;
     }
 }
 
-void Bucket::clear() {
+Bucket::~Bucket() {
     for (Event *event : events)
         delete event;
+
+    events.clear();
+    events.resize(0);
 }
 
 std::string Bucket::to_string() {
@@ -60,10 +60,12 @@ std::string Bucket::to_string() {
     if (!events.empty()) {
         Event *last = events.back();
         for (Event *it : events) {
-            out << it->to_string();
+            out << std::endl << it->to_string();
             if (it != last)
                 out << ", " << std::endl;
         }
+        
+        out << std::endl;
     }
     
     out << "], lastWatermark=" << std::to_string(lastWatermark) <<

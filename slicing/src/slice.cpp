@@ -64,9 +64,12 @@ void Slice::add(double value, long timestamp) {
     ++count;
 }
 
-void Slice::clear() {
+Slice::~Slice() {
     for (Event *event : events)
         delete event;
+
+    events.clear();
+    events.reserve(0);
 }
 
 std::string Slice::to_string() {
@@ -77,10 +80,12 @@ std::string Slice::to_string() {
         Event *last = events.back();
         
         for (Event *it : events) {
-            out << (it->to_string());
+            out << std::endl << (it->to_string());
             if (it != last)
-                out << ", " << std::endl;
+                out << ", ";
         }
+
+        out << std::endl;
     }
     
     out << "], sum=" << std::to_string(sum) <<

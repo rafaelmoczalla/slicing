@@ -113,7 +113,7 @@ class Slice {
     /**
      * Clears data in instance.
      */
-    void clear();
+    ~Slice();
 
     /**
      * Debug function to get a string representation of an instance.

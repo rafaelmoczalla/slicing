@@ -19,10 +19,12 @@ SliceOperator::SliceOperator(int start, int size, int step) {
     this->vDeltaIdx = (int)(size / step) - 1;
 }
 
-void SliceOperator::processWatermark(Watermark *watermark) {
+std::vector<Element *> SliceOperator::processWatermark(Watermark *watermark) {
+    std::vector<Element *> out;
+
     if (window == nullptr || window->getCheckpoint() < 0) { // in case no records are processed beforehand or window has no slices pass through watermark
-        // TODO: output watermark
-        return;
+        out.push_back(watermark);
+        return out;
     }
 
     long wm = watermark->getTs();
@@ -56,10 +58,6 @@ void SliceOperator::processWatermark(Watermark *watermark) {
                 window->addPreAggregate(i, deltaWindowSum, deltaWindowCount);
             }
         }
-
-        float avg = (float) window->getSlice(i)->getWindowAvg();
-
-        // TODO: output average for timestamp curWindowEnd with current key and avg
 
         ++i;
 
@@ -112,7 +110,7 @@ void SliceOperator::processWatermark(Watermark *watermark) {
 
     float avg = (float) deltaWindowSum / deltaWindowCount;
 
-    // TODO: output average for timestamp curWindowEnd with current key and avg
+    out.push_back(new Event(avg, wm));
 
     // remove slices that are already emitted and disjoint with all remaining windows that will be emitted
     window->removeSlices(wm - size);
@@ -122,21 +120,25 @@ void SliceOperator::processWatermark(Watermark *watermark) {
 
     // clear window for this key if there are no slices anymore
     if (window->getSlicesNr() == 0) {
-        window->clear();
         delete window;
         window = nullptr;
     }
 
-    return;
+    out.push_back(watermark);
+    return out;
 }
 
 void SliceOperator::processElement(Event *event) {
-    if (window != nullptr && event->getTs() < window->getLastWatermark()) // ignore late events
+    if (window != nullptr && event->getTs() < window->getLastWatermark()) { // ignore late events
+        delete event;
         return;
+    }
 
     if (window == nullptr || window->getCheckpoint() < 0) {
         long newStart = (event->getTs() - start) % step;
         newStart = event->getTs() - newStart; // get correct start of window in case event is very late
+        if (window != nullptr)
+            delete window;
         window = new State("key", newStart, newStart + step);
     }
 
@@ -159,6 +161,13 @@ void SliceOperator::processElement(Event *event) {
 
     // update slice by new event
     window->addValue(i, event->getValue(), event->getTs());
+
+    delete event;
+}
+
+SliceOperator::~SliceOperator() {
+    if (window != nullptr)
+        delete window;
 }
 
 std::string SliceOperator::to_string() {

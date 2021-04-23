@@ -1,7 +1,7 @@
 #include <event.hpp>
 
 
-Event::Event(double value, long ts) : Event::Element(ts, 1) {
+Event::Event(double value, long ts) : Element(ts, 1) {
     this->value = value;
     this->ts = ts;
 }

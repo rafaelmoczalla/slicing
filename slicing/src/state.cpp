@@ -63,6 +63,7 @@ void State::addPreAggregate(int index, double sum, int count) {
 
 void State::removeSlices(long ts) {
     while (!slices.empty() && slices[0]->getEnd() <= ts) {
+        delete slices.front();
         slices.erase(slices.begin());
 
         --checkpoint;
@@ -71,17 +72,20 @@ void State::removeSlices(long ts) {
 
 void State::removeEmptyHead() {
     while (!slices.empty() && slices[0]->empty()) {
+        delete slices.front();
         slices.erase(slices.begin());
 
         --checkpoint;
     }
 }
 
-void State::clear() {
+State::~State() {
     for (Slice *slice : slices) {
-        slice->clear();
         delete slice;
     }
+
+    slices.clear();
+    slices.reserve(0);
 }
 
 std::string State::to_string() {
@@ -92,10 +96,11 @@ std::string State::to_string() {
     if (!slices.empty()) {
         Slice *last = slices.back();
         for (Slice *it : slices) {
-            out << it->to_string();
+            out << std::endl << it->to_string();
             if (it != last)
                 out << ", " << std::endl;
         }
+        out << std::endl;
     }
     
     out << "], lastWatermark=" << std::to_string(lastWatermark) <<

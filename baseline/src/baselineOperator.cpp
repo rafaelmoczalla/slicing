@@ -13,10 +13,12 @@ BaselineOperator::BaselineOperator(int start, int size) {
     this->size = size;
 }
 
-void BaselineOperator::processWatermark(Watermark *watermark) {
+std::vector<Element *> BaselineOperator::processWatermark(Watermark *watermark) {
+    std::vector<Element *> out;
+
     if (bucket == nullptr) { // in case no records are processed beforehand or bucket has no slices pass through watermark
-        // TODO: output watermark
-        return;
+        out.push_back(watermark);
+        return out;
     }
 
     long wm = watermark->getTs();
@@ -36,11 +38,9 @@ void BaselineOperator::processWatermark(Watermark *watermark) {
     deltaWindowSum = 0.0;
     deltaWindowCount = 0;
 
-    std::vector<Event *> events = bucket->getEvents();
-
     // add events from last slice that belong to "watermark bucket"
     for (int i = 0; i < bucket->getEventsNr(); i++) {
-        Event * event = events[i];
+        Event *event = bucket->getEvent(i);
 
         // add value to aggregate if in window
         if (windowStart <= event->getTs() && event->getTs() < windowEnd) {
@@ -57,28 +57,39 @@ void BaselineOperator::processWatermark(Watermark *watermark) {
 
     float avg = (float) deltaWindowSum / deltaWindowCount;
 
-    // TODO: output average for watermark timestamp as window end with current key and avg
+    out.push_back(new Event(avg, wm));
 
     // clear bucket for this key if there are no slices anymore
     if (bucket->getEventsNr() == 0) {
-        bucket->clear();
         delete bucket;
         bucket = nullptr;
     }
 
-    return;
+    out.push_back(watermark);
+    return out;
 }
 
 void BaselineOperator::processElement(Event *event) {
-    if (bucket != nullptr && event->getTs() < bucket->getLastWatermark()) // ignore late events
+    if (bucket != nullptr && event->getTs() < bucket->getLastWatermark()) { // ignore late events
+        delete event;
         return;
+    }
 
     if (bucket == nullptr || bucket->getCheckpoint() < 0) {
+        if (bucket != nullptr)
+            delete bucket;
         bucket = new Bucket("key");
     }
 
     // update slice by new event
     bucket->addValue(event->getValue(), event->getTs());
+
+    delete event;
+}
+
+BaselineOperator::~BaselineOperator() {
+    if (bucket != nullptr)
+        delete bucket;
 }
 
 std::string BaselineOperator::to_string() {
