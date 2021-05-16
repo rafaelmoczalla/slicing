@@ -1,6 +1,8 @@
 # Prototype - Slicing for Punctuation Windows
 Authors: Rafael Moczalla
+
 Date: 21.04.2021
+
 Last Update: 16.05.2021
 
 ## Prerequisits
