@@ -48,3 +48,10 @@ Set up the IDE by clicking on `File -> Preferences Extensions` and install
    library file that can be used in other projects.
 
 ## Usage
+1. Build project with `gradle build`
+
+2. Run tests with `gradle runTest`
+
+3. Run experiments normally with `DYLD_LIBRARY_PATH=./experiments/build/install/main/debug/lib LD_LIBRARY_PATH=./experiments/build/install/main/debug/lib experiments/build/install/main/debug/lib/experiments`.
+
+4. Run experiments in debug mode with `gdb` debugger `DYLD_LIBRARY_PATH=./experiments/build/install/main/debug/lib LD_LIBRARY_PATH=./experiments/build/install/main/debug/lib gdb experiments/build/install/main/debug/lib/experiments -ex quit`.
