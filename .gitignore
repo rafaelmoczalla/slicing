@@ -63,6 +63,7 @@ out/
 target/
 flink/
 *.MF
+*.pdf
 
 ### visual studio code
 .vscode/

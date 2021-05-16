@@ -10,6 +10,17 @@ need GCC. The project was tested with Gnu Compiler Collection versio 7.5.0. One
 can install both with the following commands `sudo apt install build-essential git`
 on Ubuntu.
 
+### Python 3
+The experiments use python 3 to plot results. You can install python and pythons
+dev packages via `sudo apt install python3-dev` on Ubuntu. Make sure that you
+exported correct library directories, e.g. for python 3.6
+`export CPATH=/usr/include/python3.6m:$CPATH`, and correct include directories,
+e.g. `export LD_LIBRARY_PATH=/usr/lib:/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu:$LD_LIBRARY_PATH`.
+You may want to add this commands to your `~/.bashrc` script to automatically
+export on startup/login. If you are using another python version you need to
+adapt your python version in the `experiments/gradle.build` file in the line
+`args << '-lpython3.6m'`.
+
 ### Visual Studio Code IDE
 This project is build with the Visual Studio Code IDE. To install Visual Studio
 Code run the following commands.
