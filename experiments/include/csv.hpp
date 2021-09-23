@@ -6,7 +6,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <Python.h>
 
 #include "filesystem.hpp"
 
