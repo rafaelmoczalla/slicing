@@ -1,0 +1,16 @@
+plugins {
+    id "cpp-unit-test"
+}
+
+unitTest {
+    baseName = "Test"
+
+    dependencies {
+        implementation project(':Framework')
+        implementation project(':BucketSlidingWindow')
+        implementation project(':SlicedSlidingWindow')
+        implementation project(':PrototypeSlidingWindow')
+    }
+
+    source.from file("src")
+}

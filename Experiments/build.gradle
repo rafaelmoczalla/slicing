@@ -1,0 +1,33 @@
+plugins {
+    id "cpp-application"
+}
+
+application {
+    baseName = "Experiments"
+
+    dependencies {
+        implementation project(':PrototypeSlidingWindow')
+        implementation project(':SlicedSlidingWindow')
+        implementation project(':BucketSlidingWindow')
+    }
+
+    source.from file("src")
+    privateHeaders.from file("include")
+}
+
+model {
+    toolChains {
+        gcc(Gcc) {
+            eachPlatform {
+                cppCompiler.withArguments { args ->
+                    args << '-std=c++17'
+                    args << '-static'
+                }
+                linker.withArguments { args ->
+                    args << '-pthread'
+                    args << '-lstdc++fs'
+                }
+            }
+        }
+    }
+}

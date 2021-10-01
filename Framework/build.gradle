@@ -1,0 +1,18 @@
+plugins {
+    id "cpp-library"
+}
+
+library {
+    baseName = "Framework"
+
+    source.from file("src")
+    publicHeaders.from file("include")
+
+    linkage = [Linkage.STATIC, Linkage.SHARED]
+
+    /* extra dependencies
+    dependencies {
+        api "io.qt:core:5.1"
+        implementation "io.qt:network:5.1"
+    } */
+}
