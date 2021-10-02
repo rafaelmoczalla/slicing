@@ -25,6 +25,7 @@ model {
                 }
                 linker.withArguments { args ->
                     args << '-pthread'
+                    args << '-lpython3.9'
                     args << '-lstdc++fs'
                 }
             }

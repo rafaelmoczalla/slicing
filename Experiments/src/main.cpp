@@ -1,8 +1,10 @@
+#define PY_SSIZE_T_CLEAN
 #include <iostream>
 #include <iomanip>
 #include <random>
 #include <ctime>
 #include <sys/time.h>
+#include <Python.h>
 
 #include <bucketSlidingWindowOperator.hpp>
 #include <slicedSlidingWindowOperator.hpp>
@@ -94,7 +96,8 @@ std::string get_now() {
     return today;
 }
 
-void experiment(Csv &csv, long wmNr, long ePerWm, long wLen, long sLen) {
+void experiment(Csv &csv, long wmNr, long ePerWm, long wLen, long sLen,
+        std::vector<double> &bucket, std::vector<double> &sliced, std::vector<double> &rolled) {
     double start;
 
     std::default_random_engine generator(117);
@@ -170,6 +173,7 @@ void experiment(Csv &csv, long wmNr, long ePerWm, long wLen, long sLen) {
 
     bucketTime = get_wall_time() - start;
     csv << std::to_string(bucketTime);
+    bucket.push_back(bucketTime);
 
     std::cout << "Cleaning memory" << std::endl;
     delete bucketOperator;
@@ -215,6 +219,7 @@ void experiment(Csv &csv, long wmNr, long ePerWm, long wLen, long sLen) {
 
     slicingTime = get_wall_time() - start;
     csv << std::to_string(slicingTime);
+    sliced.push_back(slicingTime);
 
     std::cout << "Cleaning memory" << std::endl;
     delete slicedOperator;
@@ -259,6 +264,7 @@ void experiment(Csv &csv, long wmNr, long ePerWm, long wLen, long sLen) {
 
     rollingTime = get_wall_time() - start;
     csv << std::to_string(rollingTime);
+    rolled.push_back(rollingTime);
 
     std::cout << "Cleaning memory" << std::endl;
     delete prototype;
@@ -280,7 +286,7 @@ void experiment(Csv &csv, long wmNr, long ePerWm, long wLen, long sLen) {
     csv << std::endl;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     {
         std::string today = get_now();
         std::string folder = "out/rollingExperiments_" + today;
@@ -290,7 +296,7 @@ int main() {
         std::vector<Setup> experiments;
 
         Setup setup1;
-        setup1.name = "VaryingCountOfWatermarks";
+        setup1.name = "Varying Count of Watermarks";
         setup1.wmNr.push_back(100000);
         setup1.wmNr.push_back(200000);
         setup1.wmNr.push_back(300000);
@@ -301,18 +307,18 @@ int main() {
         experiments.push_back(setup1);
 
         Setup setup2;
-        setup2.name = "VaryingCountOfEventsPerWatermark";
+        setup2.name = "Varying Count of Events per Watermark";
         setup2.wmNr.push_back(100000);
-        setup2.ePerWm.push_back(30);
-        setup2.ePerWm.push_back(60);
-        setup2.ePerWm.push_back(90);
-        setup2.ePerWm.push_back(120);
+        setup2.ePerWm.push_back(300);
+        setup2.ePerWm.push_back(600);
+        setup2.ePerWm.push_back(900);
+        setup2.ePerWm.push_back(1200);
         setup2.wLen.push_back(7200);
         setup2.sLen.push_back(30);
         experiments.push_back(setup2);
 
         Setup setup3;
-        setup3.name = "VaryingCountOfParallelWindows";
+        setup3.name = "Varying Count of Parallel Windows";
         setup3.wmNr.push_back(100000);
         setup3.ePerWm.push_back(50);
         setup3.wLen.push_back(12000);
@@ -322,6 +328,13 @@ int main() {
         setup3.sLen.push_back(30);
         experiments.push_back(setup3);
 
+        // plot stuff
+        wchar_t *plot = Py_DecodeLocale(argv[0], NULL);
+        Py_SetProgramName(plot);
+        Py_Initialize();
+        PyRun_SimpleString("import matplotlib.pyplot as plt");
+
+        // run experiments and plot
         for (Setup setup : experiments) {
             std::cout << std::endl << setup.name << std::endl;
             for (char item : setup.name)
@@ -340,11 +353,15 @@ int main() {
             << "Rolling Window Runtime in Sec"
             << std::endl;
 
+            std::vector<double> yBucket;
+            std::vector<double> ySliced;
+            std::vector<double> yRolled;
+
             for (long wmNr : setup.wmNr)
                 for (long ePerWm : setup.ePerWm)
                     for (long wLen : setup.wLen)
                         for (long sLen : setup.sLen) {
-                            experiment(csv, wmNr, ePerWm, wLen, sLen);
+                            experiment(csv, wmNr, ePerWm, wLen, sLen, yBucket, ySliced, yRolled);
                             if (setup.name.compare(experiments.back().name) != 0
                                 && setup.sLen.back() != sLen)
                                 std::cout << "###########################################" << std::endl
@@ -353,7 +370,64 @@ int main() {
                                 << "wLen=" << std::to_string(wLen) << std::endl
                                 << "sLen=" << std::to_string(sLen) << std::endl;
                         }
+
+            PyRun_SimpleString("plt.figure()");
+
+            std::vector<long> x;
+            if (1 < setup.wmNr.size())
+                x = setup.wmNr;
+            else if (1 < setup.ePerWm.size())
+                x = setup.ePerWm;
+            else if (1 < setup.wLen.size())
+                x = setup.wLen;
+            else if (1 < setup.sLen.size())
+                x = setup.sLen;
+
+            std::string xString ="x=[";
+            for (double item : x)
+                xString += std::to_string(item) +
+                (item == x.back() ? "" : ", ");
+            xString += "]";
+            PyRun_SimpleString(xString.c_str());
+
+            std::string yBucketString ="bucket=[";
+            for (double item : yBucket)
+                yBucketString += std::to_string(item) +
+                (item == yBucket.back() ? "" : ", ");
+            yBucketString += "]";
+            PyRun_SimpleString(yBucketString.c_str());
+
+            std::string ySlicedString ="sliced=[";
+            for (double item : ySliced)
+                ySlicedString += std::to_string(item) +
+                (item == ySliced.back() ? "" : ", ");
+            ySlicedString += "]";
+            PyRun_SimpleString(ySlicedString.c_str());
+
+            std::string yRolledString ="rolled=[";
+            for (double item : yRolled)
+                yRolledString += std::to_string(item) +
+                (item == yRolled.back() ? "" : ", ");
+            yRolledString += "]";
+            PyRun_SimpleString(yRolledString.c_str());
+
+            PyRun_SimpleString(("plt.title('" + setup.name + "')").c_str());
+            PyRun_SimpleString(("plt.xlabel('" + setup.name.substr(8) + "')").c_str());
+            PyRun_SimpleString("plt.ylabel('Runtime in Seconds')");
+            PyRun_SimpleString("plt.xticks(x)");
+
+            PyRun_SimpleString("plt.plot(x, bucket, marker='x')");
+            PyRun_SimpleString("plt.plot(x, sliced, marker='o')");
+            PyRun_SimpleString("plt.plot(x, rolled, marker='^')");
+
+            PyRun_SimpleString("plt.legend(['bucket', 'slicing', 'rolling'])");
+            PyRun_SimpleString("plt.yscale('log')");
+            PyRun_SimpleString(("plt.savefig('" + folder + "/" + setup.name + ".pdf')").c_str());
         }
+
+        // end plot stuff
+        Py_FinalizeEx();
+        PyMem_RawFree(plot);
     }
 
     exit(EXIT_SUCCESS);
