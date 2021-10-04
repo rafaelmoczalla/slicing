@@ -15,6 +15,7 @@ application {
     privateHeaders.from file("include")
 }
 
+// choose dynamically version of python3 linkage as the old version on colab sucks and I like to not worry about this in the near future
 def pyVersion = new ByteArrayOutputStream()
 exec{
     commandLine 'bash', '-c', 'if [ "$(python3 --version | cut -f1-2 -d".")" = "Python 3.9" ]; then echo "-lpython3.9"; else echo "-lpython3.7m"; fi'
