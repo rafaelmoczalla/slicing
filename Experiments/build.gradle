@@ -15,6 +15,12 @@ application {
     privateHeaders.from file("include")
 }
 
+def pyVersion = new ByteArrayOutputStream()
+exec{
+    commandLine 'bash', '-c', 'if [ "$(python3 --version | cut -f1-2 -d".")" = "Python 3.9" ]; then echo "-lpython3.9"; else echo "-lpython3.7m"; fi'
+    standardOutput = pyVersion
+}
+
 model {
     toolChains {
         gcc(Gcc) {
@@ -25,7 +31,7 @@ model {
                 }
                 linker.withArguments { args ->
                     args << '-pthread'
-                    args << '-lpython3.9'
+                    args << pyVersion.toString().trim()
                     args << '-lstdc++fs'
                 }
             }
