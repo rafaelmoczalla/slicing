@@ -21,7 +21,7 @@ exported correct library directories, e.g. for python 3.6
 e.g. `export LD_LIBRARY_PATH=/usr/lib:/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu:$LD_LIBRARY_PATH`.
 You may want to add this commands to your `~/.bashrc` script to automatically
 export on startup/login. If you are using another python version you need to
-adapt your python version in the `experiments/gradle.build` file in the line
+adapt your python version in the `Experiments/gradle.build` file in the line
 `args << '-lpython3.6m'`.
 
 ### Visual Studio Code IDE
@@ -34,7 +34,7 @@ Set up the IDE by clicking on `File -> Preferences Extensions` and install
 `C/C++` as well as `Gradle Extension Pack`
 
 ## Import the Project in Visual Studio Code
-1. After cloning the project open the root folder of the project with the via 
+1. After cloning the project open the root folder of the project with the via
    `File -> Open Folder`. Visual Studio Code will automatically detect the gradle
    build file and prepare the project for you.
 
@@ -55,6 +55,6 @@ Set up the IDE by clicking on `File -> Preferences Extensions` and install
 
 2. Run tests with `gradle runTest`
 
-3. Run experiments normally with `DYLD_LIBRARY_PATH=./experiments/build/install/main/debug/lib LD_LIBRARY_PATH=./experiments/build/install/main/debug/lib experiments/build/install/main/debug/lib/experiments`.
+3. Run experiments normally with `DYLD_LIBRARY_PATH=./Experiments/build/install/main/debug/lib LD_LIBRARY_PATH=./Experiments/build/install/main/debug/lib Experiments/build/install/main/debug/lib/Experiments`.
 
-4. Run experiments in debug mode with `gdb` debugger `DYLD_LIBRARY_PATH=./experiments/build/install/main/debug/lib LD_LIBRARY_PATH=./experiments/build/install/main/debug/lib gdb experiments/build/install/main/debug/lib/experiments -ex quit`.
+4. Run experiments in debug mode with `gdb` debugger `DYLD_LIBRARY_PATH=./Experiments/build/install/main/debug/lib LD_LIBRARY_PATH=./Experiments/build/install/main/debug/lib gdb Experiments/build/install/main/debug/lib/Experiments -ex quit`.
